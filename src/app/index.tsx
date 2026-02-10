@@ -1,44 +1,153 @@
-import { StatusBar } from 'expo-status-bar'
-import { Text, View, Pressable } from 'react-native'
-import { useMobileWallet } from '@wallet-ui/react-native-kit'
+/**
+ * Splash Screen - Index Route
+ */
 
-export default function App() {
-  const { account, connect, disconnect } = useMobileWallet()
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
+
+export default function SplashScreen() {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Animated entrance
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Pulse animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Navigate after delay
+    const timer = setTimeout(() => {
+      router.replace('/connect-wallet');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <View className="flex-1 bg-white dark:bg-black items-center justify-center px-8">
-      {/* Heading */}
-      <Text className="text-4xl font-extrabold text-gray-800 dark:text-white mb-3 tracking-tight">🚀 Welcome</Text>
+    <LinearGradient
+      colors={['#0a0015', '#1a0030', '#0a0015']}
+      style={styles.container}
+    >
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
+        <Animated.View
+          style={[
+            styles.logoContainer,
+            {
+              transform: [{ scale: pulseAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.logo}>◈</Text>
+        </Animated.View>
 
-      {/* Subheading */}
-      <Text className="text-xl dark:text-white text-gray-700 mb-8 text-center leading-relaxed">
-        Build beautiful apps with <Text className="text-blue-500 font-semibold">Expo + Uniwind + @solana/kit 🔥</Text>
-      </Text>
-
-      <View className="mb-8 items-center">
-        {account ? (
-          <View className="items-center">
-            <Text className="text-gray-600 dark:text-gray-400 mb-2">
-              Connected: {account.address.toString().slice(0, 8)}...
-            </Text>
-            <Pressable onPress={disconnect} className="bg-red-500 px-6 py-3 rounded-xl active:bg-red-600">
-              <Text className="text-white font-bold">Disconnect Wallet</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <Pressable onPress={connect} className="bg-blue-600 px-6 py-3 rounded-xl active:bg-blue-700">
-            <Text className="text-white font-bold text-lg">Connect Wallet</Text>
-          </Pressable>
-        )}
-      </View>
-
-      {/* Instruction text */}
-      <Text className="text-base text-gray-600 dark:text-white text-center max-w-sm">
-        Start customizing your app by editing{' '}
-        <Text className="font-semibold text-gray-800 dark:text-white">app/index.tsx</Text>
-      </Text>
-
-      <StatusBar style="auto" />
-    </View>
-  )
+        <Text style={styles.title}>ECHO</Text>
+        <Text style={styles.subtitle}>Seeker Signal</Text>
+        
+        <View style={styles.taglineContainer}>
+          <Text style={styles.tagline}>Proof of Physical Status</Text>
+          <View style={styles.divider} />
+          <Text style={styles.powered}>Powered by Solana Mobile Stack</Text>
+        </View>
+      </Animated.View>
+    </LinearGradient>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    alignItems: 'center',
+  },
+  logoContainer: {
+    marginBottom: 30,
+  },
+  logo: {
+    fontSize: 100,
+    color: '#14F195',
+    textShadowColor: '#14F195',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  title: {
+    fontSize: 64,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 8,
+    textShadowColor: '#9945FF',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#14F195',
+    letterSpacing: 4,
+    marginTop: 10,
+    textTransform: 'uppercase',
+  },
+  taglineContainer: {
+    marginTop: 60,
+    alignItems: 'center',
+  },
+  tagline: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.8,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  divider: {
+    width: 100,
+    height: 1,
+    backgroundColor: '#14F195',
+    marginVertical: 15,
+    opacity: 0.5,
+  },
+  powered: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    opacity: 0.6,
+    letterSpacing: 1,
+  },
+});

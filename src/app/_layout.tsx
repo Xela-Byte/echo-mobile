@@ -1,18 +1,29 @@
-import '../global.css'
+/**
+ * Echo - Root Layout for Expo Router
+ * This replaces the NavigationContainer approach
+ */
 
-import { Slot } from 'expo-router'
-import { MobileWalletProvider, createSolanaDevnet } from '@wallet-ui/react-native-kit'
+import { Stack } from 'expo-router'
+import React from 'react'
+import { AppProvider } from '../../context/AppContext'
 
-const cluster = createSolanaDevnet()
-const identity = {
-  name: 'Kit Expo Uniwind',
-  uri: 'https://github.com/beeman/mobile_app',
-}
-
-export default function Layout() {
+export default function RootLayout() {
   return (
-    <MobileWalletProvider cluster={cluster} identity={identity}>
-      <Slot />
-    </MobileWalletProvider>
+    <AppProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#0a0015' },
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="connect-wallet" />
+        <Stack.Screen name="device-verification" />
+        <Stack.Screen name="dashboard" />
+        <Stack.Screen name="nfc-handshake" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
+      </Stack>
+    </AppProvider>
   )
 }
